@@ -3,7 +3,7 @@ TinyUSB with Pico-PIO-USB can do bitbanged USB hosts/device on a Raspberry Pi Pi
 
 The purpose of this repo is demonstrating a simple way to get the example code to compile as a separate project so check the CMakeLists.txt file.
 
-The actual source code that is build isn't a part of this repo but comes from https://github.com/sekigon-gonnoc/Pico-PIO-USB.git (it is included in tinyusb https://github.com/hathach/tinyusb as a submodule under /hw/mcu/raspberry_pi/Pico-PIO-USB)
+The actual source code that is built isn't a part of this repo but comes from https://github.com/sekigon-gonnoc/Pico-PIO-USB.git (it is included in tinyusb https://github.com/hathach/tinyusb as a submodule under /hw/mcu/raspberry_pi/Pico-PIO-USB)
 
 It isn't necessary to checkout tinyusb and pico-sdk as submodules if you already have them available, see below for details.
 
@@ -12,7 +12,7 @@ It isn't necessary to checkout tinyusb and pico-sdk as submodules if you already
 - cmake
 - arm-none-eabi-gcc
 
-### External Libraries (Included as git submodules for convenience)
+### External Libraries (included as git submodules for convenience)
 - tinyusb
 - pico-sdk
 
@@ -37,7 +37,7 @@ find _build/ -type f -name "*.uf2" -ls
 
 #### Copying the example code to ./src and build it there
 1.	Copy the whole host_hid_to_device_cdc folder to ./src
-2. 	In ./src/host_hid_to_device_cdc/CMakeLists.txt delete the line ```set(PICO_PIO_USB_SRC "${CMAKE_CURRENT_LIST_DIR}/../../src")```
+2. 	In ./src/host_hid_to_device_cdc/CMakeLists.txt comment out the line ```set(PICO_PIO_USB_SRC "${CMAKE_CURRENT_LIST_DIR}/../../src")```
 3. 	In ./CMakeLists.txt uncomment the line ```#set(SRC_TO_BUILD_PATH ${CMAKE_CURRENT_LIST_DIR}/src/host_hid_to_device_cdc)```
 ```bash
 # This performs the above steps
@@ -88,7 +88,7 @@ git submodule add https://github.com/hathach/tinyusb tinyusb
 git submodule add https://github.com/raspberrypi/pico-sdk pico-sdk
 ```
 
-#### Initialize the git submodule for Pico-PIO-USB included in tinyusb
+#### Initialize the git submodule for Pico-PIO-USB included in ./tinyusb
 ```bash
 git -C tinyusb submodule update --init hw/mcu/raspberry_pi/Pico-PIO-USB
 ```
