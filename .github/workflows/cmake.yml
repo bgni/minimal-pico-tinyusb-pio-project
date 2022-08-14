@@ -47,4 +47,4 @@ jobs:
       run: ctest -C ${{env.BUILD_TYPE}}
       
     - name: Show build artifacts
-      run: find  build/ -maxdepth 1 -type f -ls
+      run: find _build/ -type f -name "*.uf2" -ls
