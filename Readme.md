@@ -28,7 +28,7 @@ git -C tinyusb submodule update --init hw/mcu/raspberry_pi/Pico-PIO-USB
 cmake -B _build && cmake --build _build/ --config Release
 
 # Done
-ls _build/*.u2f
+find _build/ -type f -name "*.uf2" -ls
 ```
 
 ## Extras
@@ -36,17 +36,19 @@ ls _build/*.u2f
 ### Alternate variants
 
 #### Copying the example code to ./src and build it there
+1.	Copy the whole host_hid_to_device_cdc folder to ./src
+2. 	In ./src/host_hid_to_device_cdc/CMakeLists.txt delete the line ```set(PICO_PIO_USB_SRC "${CMAKE_CURRENT_LIST_DIR}/../../src")```
+3. 	In ./CMakeLists.txt uncomment the line ```#set(SRC_TO_BUILD_PATH ${CMAKE_CURRENT_LIST_DIR}/src/host_hid_to_device_cdc)```
 ```bash
-cp -R tinyusb/hw/mcu/raspberry_pi/Pico-PIO-USB/examples/host_hid_to_device_cdc ./src/
-```
-Then in ./src/host_hid_to_device_cdc/CMakeLists.txt delete the line
-```cmake
-set(PICO_PIO_USB_SRC "${CMAKE_CURRENT_LIST_DIR}/../../src")
+# This performs the above steps
+cp -R ./tinyusb/hw/mcu/raspberry_pi/Pico-PIO-USB/examples/host_hid_to_device_cdc ./src/
+sed --in-place -re 's/^set\(PICO_PIO_USB_SRC .*/# \0/' src/host_hid_to_device_cdc/CMakeLists.txt
+sed --in-place -re 's/^#(set\(SRC_TO_BUILD_PATH .*)/\1/' CMakeLists.txt
 ```
 Build like usual:
 ```bash
 cmake -B _build && cmake --build _build/ --config Release
-ls _build/*.u2f
+find _build/ -type f -name "*.uf2" -ls
 ```
 
 #### Overriding paths to pico-sdk and tinyusb
@@ -100,4 +102,5 @@ cp ../minimal-pico-tinyusb-pio-project/CMakeLists.txt ./
 ```bash
 cmake -B _build
 cmake --build _build/ --config Release
+find _build/ -type f -name "*.uf2" -ls
 ```
