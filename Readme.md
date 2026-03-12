@@ -1,3 +1,8 @@
+# :warning: This hasn't been tested for years and probably doesn't work anymore
+
+
+---
+
 # Minimal example project for using TinyUSB with Pico-PIO-USB on a Raspberry Pi Pico
 TinyUSB with Pico-PIO-USB can do bitbanged USB hosts/device on a Raspberry Pi Pico
 
