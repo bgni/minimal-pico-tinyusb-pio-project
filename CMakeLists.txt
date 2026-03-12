@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.13)
 # 3. Uncomment the next line 
 #set(SRC_TO_BUILD_PATH ${CMAKE_CURRENT_LIST_DIR}/src/host_hid_to_device_cdc)
 #
-# cp -R ./tinyusb/hw/mcu/raspberry_pi/Pico-PIO-USB/examples/host_hid_to_device_cdc ./src/
+# cp -R ./pico-sdk/lib/tinyusb/hw/mcu/raspberry_pi/Pico-PIO-USB/examples/host_hid_to_device_cdc ./src/
 # sed --in-place -re 's/^set\(PICO_PIO_USB_SRC .*/# \0/' src/host_hid_to_device_cdc/CMakeLists.txt
 # sed --in-place -re 's/^#(set\(SRC_TO_BUILD_PATH .*)/\1/' CMakeLists.txt
 #
@@ -39,8 +39,8 @@ if (NOT PICO_TINYUSB_PATH)
         set(PICO_TINYUSB_PATH $ENV{PICO_TINYUSB_PATH})
         message("Setting PICO_TINYUSB_PATH from environment ('${PICO_TINYUSB_PATH}')")
     else()
-        set(PICO_TINYUSB_PATH ${CMAKE_CURRENT_LIST_DIR}/tinyusb)
-        message("Setting PICO_TINYUSB_PATH from git submodule path ('${PICO_TINYUSB_PATH}')")
+        set(PICO_TINYUSB_PATH ${PICO_SDK_PATH}/lib/tinyusb)
+        message("Setting PICO_TINYUSB_PATH from pico-sdk tinyusb path ('${PICO_TINYUSB_PATH}')")
     endif()
 else()
     message("PICO_TINYUSB_PATH is ('${PICO_TINYUSB_PATH}')")
@@ -54,11 +54,19 @@ if (NOT PICO_PIO_USB_PATH)
         set(PICO_PIO_USB_PATH $ENV{PICO_PIO_USB_PATH})
         message("Setting PICO_PIO_USB_PATH from environment ('${PICO_PIO_USB_PATH}')")
     else()
-        set(PICO_PIO_USB_PATH ${PICO_TINYUSB_PATH}/hw/mcu/raspberry_pi/Pico-PIO-USB)
-        message("Setting PICO_PIO_USB_PATH from git submodule path ('${PICO_PIO_USB_PATH}')")
+        set(PICO_PIO_USB_PATH ${CMAKE_CURRENT_LIST_DIR}/Pico-PIO-USB)
+        message("Setting PICO_PIO_USB_PATH from bundled submodule path ('${PICO_PIO_USB_PATH}')")
     endif()
 else()
     message("PICO_PIO_USB_PATH is ('${PICO_PIO_USB_PATH}')")
+endif()
+
+if (NOT EXISTS "${PICO_TINYUSB_PATH}")
+    message(FATAL_ERROR "TinyUSB path '${PICO_TINYUSB_PATH}' does not exist. Set PICO_TINYUSB_PATH to a valid TinyUSB checkout.")
+endif()
+
+if (NOT EXISTS "${PICO_PIO_USB_PATH}")
+    message(FATAL_ERROR "Pico-PIO-USB path '${PICO_PIO_USB_PATH}' does not exist. Set PICO_PIO_USB_PATH or init the Pico-PIO-USB submodule.")
 endif()
 
 #
@@ -85,7 +93,6 @@ pico_sdk_init()
 #
 # Setup paths to Pico-PIO-USB
 #
-set(PICO_PIO_USB_SRC "${PICO_PIO_USB_PATH}/src")
 set(PICO_PIO_USB_EXAMPLES_PATH ${PICO_PIO_USB_PATH}/examples)
 
 #
@@ -94,6 +101,12 @@ set(PICO_PIO_USB_EXAMPLES_PATH ${PICO_PIO_USB_PATH}/examples)
 if (NOT SRC_TO_BUILD_PATH)
     set(SRC_TO_BUILD_PATH ${PICO_PIO_USB_EXAMPLES_PATH}/host_hid_to_device_cdc)
 endif()
+
+if (NOT EXISTS "${SRC_TO_BUILD_PATH}")
+    message(FATAL_ERROR "Example path '${SRC_TO_BUILD_PATH}' does not exist. Set SRC_TO_BUILD_PATH to the TinyUSB example you want to build.")
+endif()
+
+add_subdirectory(${PICO_PIO_USB_PATH} ${CMAKE_CURRENT_BINARY_DIR}/pio_usb_lib)
 
 message("Building code from '${SRC_TO_BUILD_PATH}'")
 add_subdirectory(${SRC_TO_BUILD_PATH})

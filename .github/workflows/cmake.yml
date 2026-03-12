@@ -21,15 +21,11 @@ jobs:
     - name: Install ARM GCC
       uses: carlosperate/arm-none-eabi-gcc-action@v1
       with:
-        release: '11.2-2022.02'
+        release: '13.2.Rel1'
 
-    - uses: actions/checkout@v3
-    
-    - name: Checkout submodules
-      run: git submodule update --init
-
-    - name: Init Pico-PIO-USB submodule in tinyusb
-      run: git -C tinyusb submodule update --init hw/mcu/raspberry_pi/Pico-PIO-USB
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/_build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
