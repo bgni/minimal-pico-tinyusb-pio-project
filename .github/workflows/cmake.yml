@@ -9,6 +9,8 @@ on:
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
+  # Arm GNU toolchain is installed via apt and lives under /usr/bin.
+  PICO_TOOLCHAIN_PATH: /usr
 
 jobs:
   build:
@@ -25,26 +27,28 @@ jobs:
     # 'latest' tracks the current Arm GNU Toolchain release (currently 15.2.Rel1 / GCC 15.2 as of 2025-12-17).
     # Pin to a specific release (e.g. '13.3.Rel1') for reproducible builds.
     - name: Install ARM GCC
-      uses: carlosperate/arm-none-eabi-gcc-action@v1
-      with:
-        release: 'latest'
+      run: |
+        set -euxo pipefail
+        sudo apt-get update
+        sudo apt-get install -y gcc-arm-none-eabi libnewlib-arm-none-eabi
 
     - name: Checkout repository and submodules
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         submodules: recursive
 
     - name: Cache CMake build directory
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: _build
-        key: cmake-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'src/**', 'pico-sdk/CMakeLists.txt') }}
+        key: cmake-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'src/**', 'pico-sdk/CMakeLists.txt', '.github/workflows/cmake.yml') }}
         restore-keys: |
           cmake-${{ runner.os }}-
 
     - name: Configure CMake
       run: |
         set -euxo pipefail
+        rm -f _build/CMakeCache.txt
         cmake -S . -B _build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
     - name: Build
