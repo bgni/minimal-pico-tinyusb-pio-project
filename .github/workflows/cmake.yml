@@ -41,13 +41,14 @@ jobs:
       uses: actions/cache@v5
       with:
         path: _build
-        key: cmake-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'src/**', 'pico-sdk/CMakeLists.txt') }}
+        key: cmake-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'src/**', 'pico-sdk/CMakeLists.txt', '.github/workflows/cmake.yml') }}
         restore-keys: |
           cmake-${{ runner.os }}-
 
     - name: Configure CMake
       run: |
         set -euxo pipefail
+        rm -f _build/CMakeCache.txt
         cmake -S . -B _build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
     - name: Build
