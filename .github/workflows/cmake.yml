@@ -17,31 +17,55 @@ jobs:
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: read
+
     steps:
+    # Install the Arm GNU Toolchain.
+    # 'latest' tracks the current Arm GNU Toolchain release (currently 15.2.Rel1 / GCC 15.2 as of 2025-12-17).
+    # Pin to a specific release (e.g. '13.3.Rel1') for reproducible builds.
     - name: Install ARM GCC
       uses: carlosperate/arm-none-eabi-gcc-action@v1
       with:
-        release: '11.2-2022.02'
+        release: 'latest'
 
-    - uses: actions/checkout@v3
-    
-    - name: Checkout submodules
-      run: git submodule update --init
+    - name: Checkout repository and submodules
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Init Pico-PIO-USB submodule in tinyusb
-      run: git -C tinyusb submodule update --init hw/mcu/raspberry_pi/Pico-PIO-USB
+      run: |
+        set -euxo pipefail
+        git -C tinyusb submodule update --init hw/mcu/raspberry_pi/Pico-PIO-USB
+
+    - name: Cache CMake build directory
+      uses: actions/cache@v4
+      with:
+        path: _build
+        key: cmake-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'src/**', 'pico-sdk/CMakeLists.txt') }}
+        restore-keys: |
+          cmake-${{ runner.os }}-
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/_build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: |
+        set -euxo pipefail
+        cmake -S . -B _build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/_build --config ${{env.BUILD_TYPE}}
+      run: |
+        set -euxo pipefail
+        cmake --build _build --config ${{ env.BUILD_TYPE }}
 
     - name: Test
       working-directory: ${{github.workspace}}/_build
       # Execute tests defined by the CMake configuration.
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
-      
+      run: |
+        set -euxo pipefail
+        ctest -C ${{env.BUILD_TYPE}}
+
     - name: Show build artifacts
-      run: find _build/ -type f -name "*.uf2" -ls
+      run: |
+        set -euxo pipefail
+        find _build/ -type f -name "*.uf2" -ls
