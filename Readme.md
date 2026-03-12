@@ -1,4 +1,4 @@
-# :warning: This hasn't been tested for years and probably doesn't work anymore
+# :warning: This doesn't work anymore
 
 
 ---
